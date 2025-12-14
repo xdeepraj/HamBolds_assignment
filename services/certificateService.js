@@ -1,110 +1,156 @@
-import { createCanvas, loadImage } from "canvas";
+import { createCanvas, loadImage, registerFont } from "canvas";
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
 
+// ------------------------------
+// ESM dirname setup
+// ------------------------------
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+// ------------------------------
+// Register custom font
+// ------------------------------
+registerFont(path.join(__dirname, "../fonts/PlayfairDisplay-Regular.ttf"), {
+  family: "Playfair Display",
+  weight: "normal",
+  style: "normal",
+});
+
+registerFont(path.join(__dirname, "../fonts/PlayfairDisplay-Bold.ttf"), {
+  family: "Playfair Display",
+  weight: "bold",
+  style: "normal",
+});
+
+registerFont(path.join(__dirname, "../fonts/PlayfairDisplay-Italic.ttf"), {
+  family: "Playfair Display",
+  weight: "normal",
+  style: "italic",
+});
+
+registerFont(path.join(__dirname, "../fonts/PlayfairDisplay-BoldItalic.ttf"), {
+  family: "Playfair Display",
+  weight: "bold",
+  style: "italic",
+});
+
+// ------------------------------
+// Helper: format date
+// "15th Dec, 2025 01:23"
+// ------------------------------
+const formatDateTime = (date) => {
+  const day = date.getDate();
+  const year = date.getFullYear();
+  const month = date.toLocaleString("en-IN", { month: "short" });
+
+  const suffix = (d) => {
+    if (d > 3 && d < 21) return "th";
+    switch (d % 10) {
+      case 1:
+        return "st";
+      case 2:
+        return "nd";
+      case 3:
+        return "rd";
+      default:
+        return "th";
+    }
+  };
+
+  const hh = String(date.getHours()).padStart(2, "0");
+  const mm = String(date.getMinutes()).padStart(2, "0");
+
+  return `${day}${suffix(day)} ${month}, ${year} ${hh}:${mm}`;
+};
+
+// ------------------------------
+// Create template (NO FOOTER HERE)
+// ------------------------------
 const createTemplateIfNotExists = async () => {
   const templatePath = path.join(
     __dirname,
     "../templates/certificate-template.jpg"
   );
 
-  // Ensure templates directory exists
-  const templatesDir = path.dirname(templatePath);
-  if (!fs.existsSync(templatesDir)) {
-    fs.mkdirSync(templatesDir, { recursive: true });
+  if (!fs.existsSync(path.dirname(templatePath))) {
+    fs.mkdirSync(path.dirname(templatePath), { recursive: true });
   }
 
   if (!fs.existsSync(templatePath)) {
-    // A4 Landscape dimensions at 300 DPI (better quality)
-    // A4 Landscape: 3508 x 2480 pixels at 300 DPI
     const width = 3508;
     const height = 2480;
+
     const canvas = createCanvas(width, height);
     const ctx = canvas.getContext("2d");
 
-    // Background - light beige/cream color
+    // Background
     ctx.fillStyle = "#F5F5DC";
     ctx.fillRect(0, 0, width, height);
 
-    // Outer border (thick decorative border)
+    // Borders
     ctx.strokeStyle = "#8B4513";
     ctx.lineWidth = 30;
     ctx.strokeRect(75, 75, width - 150, height - 150);
 
-    // Inner border (decorative double border effect)
     ctx.strokeStyle = "#D2691E";
     ctx.lineWidth = 8;
     ctx.strokeRect(120, 120, width - 240, height - 240);
 
-    // Title - CERTIFICATE (large and centered)
+    // Title
     ctx.fillStyle = "#8B4513";
-    ctx.font = "bold 180px 'Times New Roman', serif";
+    ctx.font = "bold 180px 'Playfair Display'";
     ctx.textAlign = "center";
-    ctx.textBaseline = "middle";
-    ctx.fillText("GST CERTIFICATE", width / 2, 450);
+    // Title
+    const titleText = "GST CERTIFICATE";
 
-    // Decorative line under title
-    ctx.strokeStyle = "#8B4513";
-    ctx.lineWidth = 6;
+    ctx.fillStyle = "#8B4513";
+    ctx.font = "bold 180px 'Playfair Display'";
+    ctx.textAlign = "center";
+    // Title
+    const titleY = 420;
+    ctx.fillText(titleText, width / 2, titleY);
+
+    // Dynamic underline (closer to title)
+    const textMetrics = ctx.measureText(titleText);
+    const underlineWidth = textMetrics.width + 40;
+    const underlineY = titleY + 45;
+
+    ctx.lineWidth = 8;
     ctx.beginPath();
-    ctx.moveTo(width / 2 - 400, 550);
-    ctx.lineTo(width / 2 + 400, 550);
+    ctx.moveTo(width / 2 - underlineWidth / 2, underlineY);
+    ctx.lineTo(width / 2 + underlineWidth / 2, underlineY);
     ctx.stroke();
 
-    // Standard certificate text
+    // Subtitle (closer to underline)
     ctx.fillStyle = "#2C3E50";
-    ctx.font = "italic 80px 'Times New Roman', serif";
-    ctx.textAlign = "center";
-    ctx.fillText("This is to certify that", width / 2, 750);
+    ctx.font = "italic 80px 'Playfair Display'";
+    ctx.fillText("This is to certify that", width / 2, underlineY + 150);
 
-    // Standard continuation text
+    ctx.font = "60px 'Playfair Display'";
     ctx.fillStyle = "#34495E";
-    ctx.font = "60px 'Times New Roman', serif";
     ctx.fillText(
       "has been registered with GST and is a recognized business entity",
       width / 2,
-      1050
+      1000
     );
-    ctx.fillText("under the Goods and Services Tax Act.", width / 2, 1150);
+    ctx.fillText("under the Goods and Services Tax Act.", width / 2, 1100);
 
-    // Footer with signature and date placeholder area
-    ctx.fillStyle = "#666";
-    ctx.font = "50px 'Times New Roman', serif";
-
-    // Signature line - left side
-    ctx.textAlign = "left";
-    ctx.fillText("Authorized Signature", width / 2 - 400, height - 250);
-    ctx.strokeStyle = "#666";
-    ctx.lineWidth = 2;
-    ctx.beginPath();
-    ctx.moveTo(width / 2 - 400, height - 180);
-    ctx.lineTo(width / 2 - 100, height - 180);
-    ctx.stroke();
-
-    // Date line - right side
-    ctx.textAlign = "right";
-    ctx.fillText("Date:", width / 2 + 400, height - 250);
-    ctx.strokeStyle = "#666";
-    ctx.beginPath();
-    ctx.moveTo(width / 2 + 100, height - 180);
-    ctx.lineTo(width / 2 + 400, height - 180);
-    ctx.stroke();
-
-    // Save the template
-    const buffer = canvas.toBuffer("image/jpeg", { quality: 0.95 });
-    fs.writeFileSync(templatePath, buffer);
+    fs.writeFileSync(
+      templatePath,
+      canvas.toBuffer("image/jpeg", { quality: 0.95 })
+    );
   }
 
   return templatePath;
 };
 
+// ------------------------------
+// MAIN FUNCTION
+// ------------------------------
 export const createCertificateImage = async (data) => {
   const templatePath = await createTemplateIfNotExists();
-
   const image = await loadImage(templatePath);
 
   const canvas = createCanvas(image.width, image.height);
@@ -112,92 +158,105 @@ export const createCertificateImage = async (data) => {
 
   ctx.drawImage(image, 0, 0);
 
-  // Calculate positions based on canvas dimensions (A4 Landscape)
   const width = canvas.width;
-  const startX = width / 2;
-  const nameY = 900;
-  const businessNameY = 1400;
-  const gstY = 1600;
-  const addressY = 1800;
-  const lineHeight = 100;
+  const height = canvas.height;
+  const centerX = width / 2;
 
-  // Name (centered, bold, larger)
+  // ------------------------------
+  // Name
+  // ------------------------------
   ctx.fillStyle = "#1A1A1A";
-  ctx.font = "bold 100px 'Times New Roman', serif";
+  ctx.font = "bold 100px 'Playfair Display'";
   ctx.textAlign = "center";
-  ctx.textBaseline = "middle";
-  ctx.fillText(data.name, startX, nameY);
+  ctx.fillText(data.name, centerX, 800);
 
-  // Business Name label and value
-  ctx.fillStyle = "#2C3E50";
-  ctx.font = "bold 70px 'Times New Roman', serif";
+  // ------------------------------
+  // Business details
+  // ------------------------------
+  const labelX = centerX - 600;
+  const valueX = centerX + 100;
+
   ctx.textAlign = "left";
-  const labelX = width / 2 - 600;
-  ctx.fillText("Business Name:", labelX, businessNameY);
 
-  ctx.fillStyle = "#1A1A1A";
-  ctx.font = "70px 'Times New Roman', serif";
-  const valueX = width / 2 + 100;
-  ctx.fillText(data.businessName, valueX, businessNameY);
-
-  // GST Number label and value
+  ctx.font = "bold 70px 'Playfair Display'";
   ctx.fillStyle = "#2C3E50";
-  ctx.font = "bold 70px 'Times New Roman', serif";
-  ctx.fillText("GST Number:", labelX, gstY);
+  ctx.fillText("Business Name:", labelX, 1400);
 
+  ctx.font = "70px 'Playfair Display'";
   ctx.fillStyle = "#1A1A1A";
-  ctx.font = "70px 'Times New Roman', serif";
-  ctx.fillText(data.gstNumber, valueX, gstY);
+  ctx.fillText(data.businessName, valueX, 1400);
 
-  // Business Address label and value (handle multi-line if needed)
+  ctx.font = "bold 70px 'Playfair Display'";
   ctx.fillStyle = "#2C3E50";
-  ctx.font = "bold 70px 'Times New Roman', serif";
-  ctx.fillText("Business Address:", labelX, addressY);
+  ctx.fillText("GST Number:", labelX, 1600);
 
+  ctx.font = "70px 'Playfair Display'";
   ctx.fillStyle = "#1A1A1A";
-  ctx.font = "70px 'Times New Roman', serif";
+  ctx.fillText(data.gstNumber, valueX, 1600);
 
-  // Multi-line address wrapping
-  const maxWidth = 1400; // Maximum width for address text
+  ctx.font = "bold 70px 'Playfair Display'";
+  ctx.fillStyle = "#2C3E50";
+  ctx.fillText("Business Address:", labelX, 1800);
+
+  ctx.font = "70px 'Playfair Display'";
+  ctx.fillStyle = "#1A1A1A";
+
   const words = data.businessAddress.split(" ");
-  const lines = [];
-  let currentLine = "";
+  let line = "";
+  let y = 1800;
+  const maxWidth = 1400;
 
-  for (let i = 0; i < words.length; i++) {
-    const testLine = currentLine ? currentLine + " " + words[i] : words[i];
-    const metrics = ctx.measureText(testLine);
-
-    if (metrics.width > maxWidth && currentLine) {
-      lines.push(currentLine);
-      currentLine = words[i];
+  for (const word of words) {
+    const testLine = line + word + " ";
+    if (ctx.measureText(testLine).width > maxWidth) {
+      ctx.fillText(line, valueX, y);
+      line = word + " ";
+      y += 100;
     } else {
-      currentLine = testLine;
+      line = testLine;
     }
   }
-  if (currentLine) {
-    lines.push(currentLine);
-  }
+  ctx.fillText(line, valueX, y);
 
-  // Draw each line of the address
-  lines.forEach((line, index) => {
-    ctx.fillText(line, valueX, addressY + index * lineHeight);
-  });
+  // ------------------------------
+  // Footer / Signature (CENTERED)
+  // ------------------------------
+  const footerTop = height - 340;
+  const issuedAt = formatDateTime(new Date());
 
+  ctx.textAlign = "center";
+  ctx.fillStyle = "#1A1A1A";
+
+  // Signature name
+  ctx.font = "italic 60px 'Playfair Display'";
+  ctx.fillText("HamBolds", centerX, footerTop);
+
+  // Signature underline (centered)
+  ctx.beginPath();
+  ctx.moveTo(centerX - 140, footerTop + 20);
+  ctx.lineTo(centerX + 140, footerTop + 20);
+  ctx.stroke();
+
+  // Authorized Signature text
+  ctx.font = "50px 'Playfair Display'";
+  ctx.fillText("Authorized Signature", centerX, footerTop + 80);
+
+  // Date (centered, next line)
+  ctx.font = "50px 'Playfair Display'";
+  ctx.fillText(`Date: ${issuedAt}`, centerX, footerTop + 150);
+
+  // ------------------------------
+  // Save output
+  // ------------------------------
   const outputDir = path.join(__dirname, "../output");
   if (!fs.existsSync(outputDir)) {
     fs.mkdirSync(outputDir, { recursive: true });
-    console.log("Created output directory:", outputDir);
   }
 
   const outputPath = path.join(outputDir, `certificate_${Date.now()}.jpg`);
 
-  try {
-    fs.writeFileSync(outputPath, canvas.toBuffer("image/jpeg"));
-    console.log("Certificate image saved to:", outputPath);
-  } catch (error) {
-    console.error("Error saving certificate image:", error);
-    throw error;
-  }
+  fs.writeFileSync(outputPath, canvas.toBuffer("image/jpeg"));
+  console.log("Certificate image saved to:", outputPath);
 
   return outputPath;
 };
