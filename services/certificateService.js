@@ -1,4 +1,4 @@
-import { createCanvas, loadImage, registerFont } from "canvas";
+import { createCanvas, loadImage } from "canvas";
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
@@ -8,33 +8,6 @@ import { fileURLToPath } from "url";
 // ------------------------------
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-
-// ------------------------------
-// Register custom font
-// ------------------------------
-registerFont(path.join(__dirname, "../fonts/PlayfairDisplay-Regular.ttf"), {
-  family: "Playfair Display",
-  weight: "normal",
-  style: "normal",
-});
-
-registerFont(path.join(__dirname, "../fonts/PlayfairDisplay-Bold.ttf"), {
-  family: "Playfair Display",
-  weight: "bold",
-  style: "normal",
-});
-
-registerFont(path.join(__dirname, "../fonts/PlayfairDisplay-Italic.ttf"), {
-  family: "Playfair Display",
-  weight: "normal",
-  style: "italic",
-});
-
-registerFont(path.join(__dirname, "../fonts/PlayfairDisplay-BoldItalic.ttf"), {
-  family: "Playfair Display",
-  weight: "bold",
-  style: "italic",
-});
 
 // ------------------------------
 // Helper: format date
@@ -100,13 +73,13 @@ const createTemplateIfNotExists = async () => {
 
     // Title
     ctx.fillStyle = "#8B4513";
-    ctx.font = "bold 180px 'Playfair Display'";
+    ctx.font = "bold 180px Sans";
     ctx.textAlign = "center";
     // Title
     const titleText = "GST CERTIFICATE";
 
     ctx.fillStyle = "#8B4513";
-    ctx.font = "bold 180px 'Playfair Display'";
+    ctx.font = "bold 180px Sans";
     ctx.textAlign = "center";
     // Title
     const titleY = 420;
@@ -125,10 +98,10 @@ const createTemplateIfNotExists = async () => {
 
     // Subtitle (closer to underline)
     ctx.fillStyle = "#2C3E50";
-    ctx.font = "italic 80px 'Playfair Display'";
+    ctx.font = "italic 80px Sans";
     ctx.fillText("This is to certify that", width / 2, underlineY + 150);
 
-    ctx.font = "60px 'Playfair Display'";
+    ctx.font = "60px Sans";
     ctx.fillStyle = "#34495E";
     ctx.fillText(
       "has been registered with GST and is a recognized business entity",
@@ -166,7 +139,7 @@ export const createCertificateImage = async (data) => {
   // Name
   // ------------------------------
   ctx.fillStyle = "#1A1A1A";
-  ctx.font = "bold 100px 'Playfair Display'";
+  ctx.font = "bold 100px Sans";
   ctx.textAlign = "center";
   ctx.fillText(data.name, centerX, 800);
 
@@ -178,27 +151,27 @@ export const createCertificateImage = async (data) => {
 
   ctx.textAlign = "left";
 
-  ctx.font = "bold 70px 'Playfair Display'";
+  ctx.font = "bold 70px Sans";
   ctx.fillStyle = "#2C3E50";
   ctx.fillText("Business Name:", labelX, 1400);
 
-  ctx.font = "70px 'Playfair Display'";
+  ctx.font = "70px Sans";
   ctx.fillStyle = "#1A1A1A";
   ctx.fillText(data.businessName, valueX, 1400);
 
-  ctx.font = "bold 70px 'Playfair Display'";
+  ctx.font = "bold 70px Sans";
   ctx.fillStyle = "#2C3E50";
   ctx.fillText("GST Number:", labelX, 1600);
 
-  ctx.font = "70px 'Playfair Display'";
+  ctx.font = "70px Sans";
   ctx.fillStyle = "#1A1A1A";
   ctx.fillText(data.gstNumber, valueX, 1600);
 
-  ctx.font = "bold 70px 'Playfair Display'";
+  ctx.font = "bold 70px Sans";
   ctx.fillStyle = "#2C3E50";
   ctx.fillText("Business Address:", labelX, 1800);
 
-  ctx.font = "70px 'Playfair Display'";
+  ctx.font = "70px Sans";
   ctx.fillStyle = "#1A1A1A";
 
   const words = data.businessAddress.split(" ");
@@ -228,7 +201,7 @@ export const createCertificateImage = async (data) => {
   ctx.fillStyle = "#1A1A1A";
 
   // Signature name
-  ctx.font = "italic 60px 'Playfair Display'";
+  ctx.font = "italic 60px Sans";
   ctx.fillText("HamBolds", centerX, footerTop);
 
   // Signature underline (centered)
@@ -238,11 +211,11 @@ export const createCertificateImage = async (data) => {
   ctx.stroke();
 
   // Authorized Signature text
-  ctx.font = "50px 'Playfair Display'";
+  ctx.font = "50px Sans";
   ctx.fillText("Authorized Signature", centerX, footerTop + 80);
 
   // Date (centered, next line)
-  ctx.font = "50px 'Playfair Display'";
+  ctx.font = "50px Sans";
   ctx.fillText(`Date: ${issuedAt}`, centerX, footerTop + 150);
 
   // ------------------------------
