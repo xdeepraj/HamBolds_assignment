@@ -23,14 +23,17 @@ const createTransporter = () => {
         user: smtpLogin,
         pass: smtpKey,
       },
+      requireTLS: true,
       tls: {
+        servername: smtpHost,
         rejectUnauthorized: false, // Helps with cloud platforms
       },
-      connectionTimeout: 20000,
-      greetingTimeout: 20000,
-      socketTimeout: 20000,
+      family: 4,
+      connectionTimeout: 30000,
+      greetingTimeout: 30000,
+      socketTimeout: 30000,
     }),
-    fromEmail: fromEmail || smtpLogin, // Use FROM_EMAIL or fallback to SMTP login
+    fromEmail: fromEmail, // Use FROM_EMAIL or fallback to SMTP login
   };
 };
 
