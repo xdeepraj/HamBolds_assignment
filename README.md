@@ -16,42 +16,6 @@ Built using **Node.js**, **Express**, **Canvas**, **PDFKit**, **Brevo (SMTP/API)
 
 ---
 
-## 🏗️ Project Architecture
-
-HamBolds/
-│
-├── index.js
-│
-├── routes/
-│ └── certificateRoute.js
-│
-├── controllers/
-│ └── certificateCtrl.js
-│
-├── services/
-│ ├── certificateService.js
-│ └── emailService.js
-│
-├── output/
-│ ├── certificate*<timestamp>.jpg
-│ └── certificate*<timestamp>.pdf
-│
-├── templates/
-│ └── certificate-template.jpg
-│
-├── fonts/
-│ ├── DejaVuSans\*.ttf
-│ ├── DejaVuSans-Bold\*.ttf
-│ ├── DejaVuSans-BoldOblique\*.ttf
-│ └── DejaVuSans-Oblique\*.ttf
-│
-├── utils/
-│ └── pdfUtil.js
-│
-├── .env
-├── package.json
-└── README.md
-
 ## 🔄 Flow Overview
 
 1. Client sends a POST request with business details
@@ -90,3 +54,114 @@ HamBolds/
   "pdfPath": "/app/output/certificate_XXXXXXXX.pdf"
 }
 ```
+
+## 🖼️ Certificate Output
+
+- Image: JPG (high resolution, suitable for preview)
+- Document: PDF (A4 landscape, print-ready)
+
+## 📧 Email Delivery
+
+- Emails are sent using **Brevo** (formerly Sendinblue)
+- Attachments:
+  - Certificate Image (JPG)
+  - Certificate Document (PDF)
+- Sender name: **HamBolds**
+- Subject: **Your GST Certificate**
+
+## ⚙️ Environment Variables
+
+Create a `.env` file in the root directory with the following values:
+
+```env
+PORT=5000
+
+BREVO_API_KEY=your_brevo_api_key
+BREVO_SENDER_EMAIL=your_verified_sender_email
+
+```
+
+## ▶️ Run Locally
+
+- Install Dependencies
+
+```
+npm install
+```
+
+- Start the Server
+
+```
+npm run dev
+```
+
+- The server will start on: http://localhost:5000
+
+## ☁️ Deployment (Railway)
+
+This project is deployed using Railway.
+
+Deployment Steps
+
+Push the code to GitHub
+
+Create a new Railway project
+
+Connect the GitHub repository
+
+Add the required environment variables in Railway
+
+Railway automatically builds and deploys on every push
+
+Deployed API URL: https://hamboldscertificatecreation.up.railway.app/api/generateCertificate
+
+## 🧠 Design Decisions
+
+Canvas-based certificate generation
+Used instead of HTML-to-PDF to ensure consistent rendering in headless environments.
+
+Bundled fonts
+Fonts are bundled to avoid Linux fontconfig issues in containerized environments.
+
+Service-based architecture
+Clear separation of concerns between routing, controllers, and services.
+
+## 📧 Email Delivery
+
+Emails are sent using Brevo (formerly Sendinblue)
+
+Attachments:
+
+Certificate Image (JPG)
+
+Certificate Document (PDF)
+
+Sender name: HamBolds
+
+Subject: Your GST Certificate
+
+## ⚠️ Notes & Limitations
+
+Generated certificates are stored inside the container filesystem.
+
+In production, files can be moved to cloud storage (AWS S3, GCP, etc.).
+
+Email delivery depends on Brevo API availability.
+
+## 🔮 Future Enhancements
+
+Certificate verification using QR codes
+
+Cloud storage integration for generated certificates
+
+Admin dashboard to manage issued certificates
+
+Authentication and rate limiting
+
+## 👨‍💻 Author
+
+Deepraj Sarkar
+
+## 📄 License
+
+This project is created for educational and assessment purposes.
