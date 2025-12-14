@@ -45,7 +45,7 @@ const createTemplateIfNotExists = async () => {
     ctx.font = "bold 180px 'Times New Roman', serif";
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
-    ctx.fillText("CERTIFICATE", width / 2, 450);
+    ctx.fillText("GST CERTIFICATE", width / 2, 450);
 
     // Decorative line under title
     ctx.strokeStyle = "#8B4513";
@@ -64,13 +64,17 @@ const createTemplateIfNotExists = async () => {
     // Standard continuation text
     ctx.fillStyle = "#34495E";
     ctx.font = "60px 'Times New Roman', serif";
-    ctx.fillText("has been registered with GST and is a recognized business entity", width / 2, 1050);
+    ctx.fillText(
+      "has been registered with GST and is a recognized business entity",
+      width / 2,
+      1050
+    );
     ctx.fillText("under the Goods and Services Tax Act.", width / 2, 1150);
 
     // Footer with signature and date placeholder area
     ctx.fillStyle = "#666";
     ctx.font = "50px 'Times New Roman', serif";
-    
+
     // Signature line - left side
     ctx.textAlign = "left";
     ctx.fillText("Authorized Signature", width / 2 - 400, height - 250);
@@ -80,7 +84,7 @@ const createTemplateIfNotExists = async () => {
     ctx.moveTo(width / 2 - 400, height - 180);
     ctx.lineTo(width / 2 - 100, height - 180);
     ctx.stroke();
-    
+
     // Date line - right side
     ctx.textAlign = "right";
     ctx.fillText("Date:", width / 2 + 400, height - 250);
@@ -130,7 +134,7 @@ export const createCertificateImage = async (data) => {
   ctx.textAlign = "left";
   const labelX = width / 2 - 600;
   ctx.fillText("Business Name:", labelX, businessNameY);
-  
+
   ctx.fillStyle = "#1A1A1A";
   ctx.font = "70px 'Times New Roman', serif";
   const valueX = width / 2 + 100;
@@ -140,7 +144,7 @@ export const createCertificateImage = async (data) => {
   ctx.fillStyle = "#2C3E50";
   ctx.font = "bold 70px 'Times New Roman', serif";
   ctx.fillText("GST Number:", labelX, gstY);
-  
+
   ctx.fillStyle = "#1A1A1A";
   ctx.font = "70px 'Times New Roman', serif";
   ctx.fillText(data.gstNumber, valueX, gstY);
@@ -149,20 +153,20 @@ export const createCertificateImage = async (data) => {
   ctx.fillStyle = "#2C3E50";
   ctx.font = "bold 70px 'Times New Roman', serif";
   ctx.fillText("Business Address:", labelX, addressY);
-  
+
   ctx.fillStyle = "#1A1A1A";
   ctx.font = "70px 'Times New Roman', serif";
-  
+
   // Multi-line address wrapping
   const maxWidth = 1400; // Maximum width for address text
-  const words = data.businessAddress.split(' ');
+  const words = data.businessAddress.split(" ");
   const lines = [];
-  let currentLine = '';
-  
+  let currentLine = "";
+
   for (let i = 0; i < words.length; i++) {
-    const testLine = currentLine ? currentLine + ' ' + words[i] : words[i];
+    const testLine = currentLine ? currentLine + " " + words[i] : words[i];
     const metrics = ctx.measureText(testLine);
-    
+
     if (metrics.width > maxWidth && currentLine) {
       lines.push(currentLine);
       currentLine = words[i];
@@ -173,10 +177,10 @@ export const createCertificateImage = async (data) => {
   if (currentLine) {
     lines.push(currentLine);
   }
-  
+
   // Draw each line of the address
   lines.forEach((line, index) => {
-    ctx.fillText(line, valueX, addressY + (index * lineHeight));
+    ctx.fillText(line, valueX, addressY + index * lineHeight);
   });
 
   const outputDir = path.join(__dirname, "../output");
@@ -185,10 +189,7 @@ export const createCertificateImage = async (data) => {
     console.log("Created output directory:", outputDir);
   }
 
-  const outputPath = path.join(
-    outputDir,
-    `certificate_${Date.now()}.jpg`
-  );
+  const outputPath = path.join(outputDir, `certificate_${Date.now()}.jpg`);
 
   try {
     fs.writeFileSync(outputPath, canvas.toBuffer("image/jpeg"));

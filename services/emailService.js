@@ -28,14 +28,31 @@ export const sendEmailWithAttachment = async (to, name, imagePath, pdfPath) => {
       ],
       subject: "Your GST Certificate",
       htmlContent: `
-        <div style="font-family: Arial, sans-serif;">
+        <div style="font-family: Arial, sans-serif; max-width:600px; margin:0 auto; text-align:left;">
           <p>Dear ${name},</p>
+
           <p>
-            Your GST certificate has been generated successfully.
+            Congratulations! Your GST certificate has been generated successfully.
             Please find the certificate attached in both JPG and PDF formats.
           </p>
-          <p>Thank you for using our service.</p>
-          <p style="font-size:12px;color:#666;">
+
+          <p>
+            You may keep this certificate for your official records.
+          </p>
+
+          <p>Thank you for choosing HamBolds.</p>
+
+          <hr style="border:none;border-top:1px solid #e0e0e0;margin:24px 0;" />
+
+          <p style="margin:0;font-weight:bold;">HamBolds Team</p>
+          <p style="margin:4px 0 0 0;">
+            Email:
+            <a href="mailto:support@hambolds.com" style="color:#1a73e8;text-decoration:none;">
+              support@hambolds.com
+            </a>
+          </p>
+
+          <p style="font-size:12px;color:#666;margin-top:16px;">
             This is an automated email. Please do not reply.
           </p>
         </div>
