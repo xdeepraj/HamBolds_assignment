@@ -182,6 +182,7 @@ export const createCertificateImage = async (data) => {
   const outputDir = path.join(__dirname, "../output");
   if (!fs.existsSync(outputDir)) {
     fs.mkdirSync(outputDir, { recursive: true });
+    console.log("Created output directory:", outputDir);
   }
 
   const outputPath = path.join(
@@ -189,7 +190,13 @@ export const createCertificateImage = async (data) => {
     `certificate_${Date.now()}.jpg`
   );
 
-  fs.writeFileSync(outputPath, canvas.toBuffer("image/jpeg"));
+  try {
+    fs.writeFileSync(outputPath, canvas.toBuffer("image/jpeg"));
+    console.log("Certificate image saved to:", outputPath);
+  } catch (error) {
+    console.error("Error saving certificate image:", error);
+    throw error;
+  }
 
   return outputPath;
 };

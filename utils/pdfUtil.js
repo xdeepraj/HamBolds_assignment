@@ -1,20 +1,43 @@
 import PDFDocument from "pdfkit";
 import fs from "fs";
+import sizeOf from "image-size";
 
+/**
+ * Converts a certificate image into a FULL-WIDTH landscape A4 PDF
+ */
 export const createPdfFromImage = (imagePath, pdfPath) => {
-  return new Promise((resolve) => {
-    // A4 Landscape: 842 x 595 points (72 DPI)
-    const doc = new PDFDocument({ 
-      size: [842, 595], // Landscape: width x height
-      layout: 'landscape'
-    });
-    const stream = fs.createWriteStream(pdfPath);
+  return new Promise((resolve, reject) => {
+    try {
+      // Read image dimensions
+      const imageBuffer = fs.readFileSync(imagePath);
+      const { width, height } = sizeOf(imageBuffer);
 
-    doc.pipe(stream);
-    // Fit image to full page (landscape dimensions)
-    doc.image(imagePath, 0, 0, { width: 842, height: 595, fit: [842, 595] });
-    doc.end();
+      // Decide orientation based on image
+      const isLandscape = width > height;
 
-    stream.on("finish", resolve);
+      const pageWidth = isLandscape ? 842 : 595;
+      const pageHeight = isLandscape ? 595 : 842;
+
+      const doc = new PDFDocument({
+        size: [pageWidth, pageHeight],
+        margin: 0,
+      });
+
+      const stream = fs.createWriteStream(pdfPath);
+      doc.pipe(stream);
+
+      // Draw image to EXACT page size (no cut, no margin)
+      doc.image(imagePath, 0, 0, {
+        width: pageWidth,
+        height: pageHeight,
+      });
+
+      doc.end();
+
+      stream.on("finish", resolve);
+      stream.on("error", reject);
+    } catch (err) {
+      reject(err);
+    }
   });
 };

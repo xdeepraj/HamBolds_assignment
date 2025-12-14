@@ -21,13 +21,15 @@ const certificate = {
         businessName,
         businessAddress,
       });
+      console.log("Image created at:", imagePath);
 
       const pdfPath = imagePath.replace(".jpg", ".pdf");
       await createPdfFromImage(imagePath, pdfPath);
+      console.log("PDF created at:", pdfPath);
 
       let emailSent = false;
       try {
-        await sendEmailWithAttachment(email, imagePath, pdfPath);
+        await sendEmailWithAttachment(email, name, imagePath, pdfPath);
         emailSent = true;
       } catch (emailError) {
         console.error("Email sending failed:", emailError.message);
