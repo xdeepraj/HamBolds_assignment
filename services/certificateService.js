@@ -163,8 +163,8 @@ export const createCertificateImage = async (data) => {
   // ------------------------------
   // Business details
   // ------------------------------
-  const labelX = centerX - 600;
-  const valueX = centerX + 100;
+  const labelX = centerX - 650;
+  const valueX = centerX + 150;
 
   ctx.textAlign = "left";
 
