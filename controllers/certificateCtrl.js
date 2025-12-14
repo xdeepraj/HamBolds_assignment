@@ -25,11 +25,22 @@ const certificate = {
       const pdfPath = imagePath.replace(".jpg", ".pdf");
       await createPdfFromImage(imagePath, pdfPath);
 
-      await sendEmailWithAttachment(email, imagePath, pdfPath);
+      let emailSent = false;
+      try {
+        await sendEmailWithAttachment(email, imagePath, pdfPath);
+        emailSent = true;
+      } catch (emailError) {
+        console.error("Email sending failed:", emailError.message);
+        // Continue even if email fails - certificate is still generated
+      }
 
       res.status(200).json({
         success: true,
-        message: "Certificate generated & emailed successfully",
+        message: emailSent
+          ? "Certificate generated & emailed successfully"
+          : "Certificate generated successfully (email not sent - check email configuration)",
+        imagePath,
+        pdfPath,
       });
     } catch (error) {
       console.error(error);
