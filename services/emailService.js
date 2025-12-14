@@ -1,5 +1,4 @@
 import fs from "fs";
-import fetch from "node-fetch";
 
 const BREVO_API_URL = "https://api.brevo.com/v3/smtp/email";
 
@@ -36,7 +35,9 @@ export const sendEmailWithAttachment = async (to, name, imagePath, pdfPath) => {
             Please find the certificate attached in both JPG and PDF formats.
           </p>
           <p>Thank you for using our service.</p>
-          <p style="font-size:12px;color:#666;">This is an automated email.</p>
+          <p style="font-size:12px;color:#666;">
+            This is an automated email. Please do not reply.
+          </p>
         </div>
       `,
       attachment: [
@@ -68,8 +69,8 @@ export const sendEmailWithAttachment = async (to, name, imagePath, pdfPath) => {
     }
 
     console.log("Email sent successfully via Brevo API:", result.messageId);
-  } catch (err) {
-    console.error("Error sending email via Brevo API:", err.message);
-    throw err;
+  } catch (error) {
+    console.error("Error sending email via Brevo API:", error.message);
+    throw error;
   }
 };
