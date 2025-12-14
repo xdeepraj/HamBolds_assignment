@@ -1,124 +1,75 @@
-import nodemailer from "nodemailer";
 import fs from "fs";
+import fetch from "node-fetch";
 
-// Initialize Brevo SMTP transporter
-const createTransporter = () => {
-  const smtpLogin = process.env.BREVO_SMTP_LOGIN?.trim();
-  const smtpKey = process.env.BREVO_SMTP_KEY?.trim();
-  const smtpHost =
-    process.env.BREVO_SMTP_HOST?.trim() || "smtp-relay.brevo.com";
-  const smtpPort = parseInt(process.env.BREVO_SMTP_PORT?.trim()) || 587;
-  const fromEmail = process.env.FROM_EMAIL?.trim();
-
-  if (!smtpLogin || !smtpKey) {
-    return null;
-  }
-
-  return {
-    transporter: nodemailer.createTransport({
-      host: smtpHost,
-      port: smtpPort,
-      secure: false, // STARTTLS for port 587
-      auth: {
-        user: smtpLogin,
-        pass: smtpKey,
-      },
-      requireTLS: true,
-      tls: {
-        servername: smtpHost,
-        rejectUnauthorized: false, // Helps with cloud platforms
-      },
-      family: 4,
-      connectionTimeout: 30000,
-      greetingTimeout: 30000,
-      socketTimeout: 30000,
-    }),
-    fromEmail: fromEmail, // Use FROM_EMAIL or fallback to SMTP login
-  };
-};
+const BREVO_API_URL = "https://api.brevo.com/v3/smtp/email";
 
 export const sendEmailWithAttachment = async (to, name, imagePath, pdfPath) => {
-  const transportConfig = createTransporter();
+  const apiKey = process.env.BREVO_API_KEY;
+  const fromEmail = process.env.FROM_EMAIL;
 
-  if (!transportConfig) {
-    console.warn(
-      "Brevo SMTP credentials not configured. Skipping email send. Certificate files are still generated."
-    );
-    console.warn(
-      "BREVO_SMTP_LOGIN:",
-      process.env.BREVO_SMTP_LOGIN ? "Set" : "Not set"
-    );
-    console.warn(
-      "BREVO_SMTP_KEY:",
-      process.env.BREVO_SMTP_KEY ? "Set" : "Not set"
-    );
+  if (!apiKey || !fromEmail) {
+    console.warn("Brevo API not configured. Skipping email send.");
     return;
   }
 
-  const { transporter, fromEmail } = transportConfig;
-
   try {
-    // Read files
-    const imageBuffer = fs.readFileSync(imagePath);
-    const pdfBuffer = fs.readFileSync(pdfPath);
+    const imageBase64 = fs.readFileSync(imagePath).toString("base64");
+    const pdfBase64 = fs.readFileSync(pdfPath).toString("base64");
 
-    const imageFilename =
-      imagePath.split("/").pop() ||
-      imagePath.split("\\").pop() ||
-      "certificate.jpg";
-    const pdfFilename =
-      pdfPath.split("/").pop() ||
-      pdfPath.split("\\").pop() ||
-      "certificate.pdf";
-
-    const mailOptions = {
-      from: fromEmail.includes("@") ? `HamBolds <${fromEmail}>` : fromEmail,
-      to,
+    const payload = {
+      sender: {
+        name: "HamBolds",
+        email: fromEmail,
+      },
+      to: [
+        {
+          email: to,
+          name: name,
+        },
+      ],
       subject: "Your GST Certificate",
-      text: "Please find your GST certificate attached to this email.",
-      html: `
-        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; text-align: left;">
+      htmlContent: `
+        <div style="font-family: Arial, sans-serif;">
           <p>Dear ${name},</p>
           <p>
             Your GST certificate has been generated successfully.
             Please find the certificate attached in both JPG and PDF formats.
           </p>
-          <ul>
-            <li>Certificate Image (JPG)</li>
-            <li>Certificate Document (PDF)</li>
-          </ul>
           <p>Thank you for using our service.</p>
-          <p style="font-size: 12px; color: #666;">
-            This is an automated email. Please do not reply.
-          </p>
+          <p style="font-size:12px;color:#666;">This is an automated email.</p>
         </div>
       `,
-      attachments: [
+      attachment: [
         {
-          filename: imageFilename,
-          content: imageBuffer,
-          contentType: "image/jpeg",
+          content: imageBase64,
+          name: "certificate.jpg",
         },
         {
-          filename: pdfFilename,
-          content: pdfBuffer,
-          contentType: "application/pdf",
+          content: pdfBase64,
+          name: "certificate.pdf",
         },
       ],
     };
 
-    const info = await transporter.sendMail(mailOptions);
+    const response = await fetch(BREVO_API_URL, {
+      method: "POST",
+      headers: {
+        "api-key": apiKey,
+        "Content-Type": "application/json",
+        accept: "application/json",
+      },
+      body: JSON.stringify(payload),
+    });
 
-    console.log(`Email sent successfully to ${to}`);
-    console.log("Message ID:", info.messageId);
-  } catch (error) {
-    console.error("Error sending email via Brevo:", error.message);
-    if (error.response) {
-      console.error("Brevo error response:", error.response);
+    const result = await response.json();
+
+    if (!response.ok) {
+      throw new Error(JSON.stringify(result));
     }
-    if (error.code) {
-      console.error("Error code:", error.code);
-    }
-    throw error;
+
+    console.log("Email sent successfully via Brevo API:", result.messageId);
+  } catch (err) {
+    console.error("Error sending email via Brevo API:", err.message);
+    throw err;
   }
 };
