@@ -1,4 +1,4 @@
-import { createCanvas, loadImage } from "canvas";
+import { createCanvas, loadImage, registerFont } from "canvas";
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
@@ -8,6 +8,23 @@ import { fileURLToPath } from "url";
 // ------------------------------
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+
+// Register each variant as a SEPARATE family
+registerFont(path.join(__dirname, "../fonts/DejaVuSans.ttf"), {
+  family: "DejaVuRegular",
+});
+
+registerFont(path.join(__dirname, "../fonts/DejaVuSans-Bold.ttf"), {
+  family: "DejaVuBold",
+});
+
+registerFont(path.join(__dirname, "../fonts/DejaVuSans-Oblique.ttf"), {
+  family: "DejaVuItalic",
+});
+
+registerFont(path.join(__dirname, "../fonts/DejaVuSans-BoldOblique.ttf"), {
+  family: "DejaVuBoldItalic",
+});
 
 // ------------------------------
 // Helper: format date
@@ -73,13 +90,13 @@ const createTemplateIfNotExists = async () => {
 
     // Title
     ctx.fillStyle = "#8B4513";
-    ctx.font = "bold 180px 'DejaVu Sans'";
+    ctx.font = "180px DejaVuBold";
     ctx.textAlign = "center";
     // Title
     const titleText = "GST CERTIFICATE";
 
     ctx.fillStyle = "#8B4513";
-    ctx.font = "bold 180px 'DejaVu Sans'";
+    ctx.font = "180px DejaVuBold";
     ctx.textAlign = "center";
     // Title
     const titleY = 420;
@@ -98,10 +115,10 @@ const createTemplateIfNotExists = async () => {
 
     // Subtitle (closer to underline)
     ctx.fillStyle = "#2C3E50";
-    ctx.font = "italic 80px 'DejaVu Sans'";
+    ctx.font = "80px DejaVuItalic";
     ctx.fillText("This is to certify that", width / 2, underlineY + 150);
 
-    ctx.font = "60px 'DejaVu Sans'";
+    ctx.font = "60px DejaVuItalic";
     ctx.fillStyle = "#34495E";
     ctx.fillText(
       "has been registered with GST and is a recognized business entity",
@@ -139,7 +156,7 @@ export const createCertificateImage = async (data) => {
   // Name
   // ------------------------------
   ctx.fillStyle = "#1A1A1A";
-  ctx.font = "bold 100px 'DejaVu Sans'";
+  ctx.font = "100px DejaVuBold";
   ctx.textAlign = "center";
   ctx.fillText(data.name, centerX, 800);
 
@@ -151,27 +168,27 @@ export const createCertificateImage = async (data) => {
 
   ctx.textAlign = "left";
 
-  ctx.font = "bold 70px 'DejaVu Sans'";
+  ctx.font = "70px DejaVuBold";
   ctx.fillStyle = "#2C3E50";
   ctx.fillText("Business Name:", labelX, 1400);
 
-  ctx.font = "70px 'DejaVu Sans'";
+  ctx.font = "70px DejaVuBold";
   ctx.fillStyle = "#1A1A1A";
   ctx.fillText(data.businessName, valueX, 1400);
 
-  ctx.font = "bold 70px 'DejaVu Sans'";
+  ctx.font = "70px DejaVuBold";
   ctx.fillStyle = "#2C3E50";
   ctx.fillText("GST Number:", labelX, 1600);
 
-  ctx.font = "70px 'DejaVu Sans'";
+  ctx.font = "70px DejaVuBold";
   ctx.fillStyle = "#1A1A1A";
   ctx.fillText(data.gstNumber, valueX, 1600);
 
-  ctx.font = "bold 70px 'DejaVu Sans'";
+  ctx.font = "70px DejaVuBold";
   ctx.fillStyle = "#2C3E50";
   ctx.fillText("Business Address:", labelX, 1800);
 
-  ctx.font = "70px 'DejaVu Sans'";
+  ctx.font = "70px DejaVuBold";
   ctx.fillStyle = "#1A1A1A";
 
   const words = data.businessAddress.split(" ");
@@ -201,7 +218,7 @@ export const createCertificateImage = async (data) => {
   ctx.fillStyle = "#1A1A1A";
 
   // Signature name
-  ctx.font = "italic 60px 'DejaVu Sans'";
+  ctx.font = "60px DejaVuRegular";
   ctx.fillText("HamBolds", centerX, footerTop);
 
   // Signature underline (centered)
@@ -211,11 +228,11 @@ export const createCertificateImage = async (data) => {
   ctx.stroke();
 
   // Authorized Signature text
-  ctx.font = "50px 'DejaVu Sans'";
+  ctx.font = "50px DejaVuRegular";
   ctx.fillText("Authorized Signature", centerX, footerTop + 80);
 
   // Date (centered, next line)
-  ctx.font = "50px 'DejaVu Sans'";
+  ctx.font = "50px DejaVuRegular";
   ctx.fillText(`Date: ${issuedAt}`, centerX, footerTop + 150);
 
   // ------------------------------
